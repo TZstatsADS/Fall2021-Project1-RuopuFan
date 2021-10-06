@@ -17,9 +17,9 @@ library(ggplot2)
 
 # Introduction
 
-In this project, I'm going to explore the texts by main philosophers in the modern era. Through this analysis, we can observe the way that the thinkers organized their thoughts in texts and the disparities among different schools and authors.
+In this project, I'm going to explore the texts by main philosophers in the history. Through this analysis, we can observe the way that the thinkers organized their thoughts in texts and the disparities among different schools. Since I'm interested in the famous German Idealist Immanuel Kant, I will dig into his works as well.
 
-# An overall glimpse of the texts
+# What are the most frequent words used in philosophy texts?
 
 ```{r warning=FALSE}
 # Text Processing
@@ -50,9 +50,9 @@ wordcloud(
 
 From the above word cloud, the most frequent words are `one`, `can`, `will` etc. The Oxford Dictionary defines philosophy as a discipline that explores "the nature of knowledge, reality, and existence", and it is consistent that we observe those keywords in the word cloud. An interesting finding is that philosophers also used `god` frequently in their works. I thought modern thinkers tend to discuss on only human experience but not religions, but it looks like that many of them did talk about gods.
 
-# A closer look at Rationalism, Empiricism & German Idealism
+# How are Rationalism, Empiricism & German Idealism different?
 
-Here, we are going to explore further and see if the three schools share similar wording habits.
+Here, we are going to explore further about the tradition philosophy of Rationalism & Emiricism and the more modern school of German Idealism. We will see if the three schools share similar wording habits.
 
 ## Empiricism
 
@@ -157,9 +157,9 @@ wordcloud(
 )
 ```
 
-In German Idealism, we perceive properties of an object by its appearance but cannot know the "thing-in-itself". The word cloud also indicates that it is the `cognition`, `consciousness` or `intuition` that helps us build `determination` through what we can see, yet we are not able to know the reality directly. The `concept` in one's mind may or may not be true.
+In German Idealism, we perceive properties of an object by its appearance but cannot know the "thing-in-itself". The word cloud also indicates that it is the `cognition`, `consciousness` or `intuition` that helps us build `determination` through what we can see, yet we are not able to know the reality directly. The `concept` in one's mind may or may not be true. It is interesting that the core texts in Idealism differ a lot from the above two schools.
 
-# The main thinker: Immanuel Kant
+# What did Immanuel Kant mainly argue about?
 
 Immanuel Kant, considered as one of the most influential figures in modern Western philosophy, was also the central figure in German Idealism. He synthesized both Rationalism and Empiricism in his thoughts and attempted to explain the relationship between reason and human experience that traditional philosophy failed to prove. Since Kant combined ideas from the other two schools, we could expect that he used similar words as rationalists and empiricists did. But what if we take a closer look at his critique works and compare the weighted document-wise word frequencies?
 
