@@ -1,0 +1,198 @@
+---
+title: "GR5243 Project1: Exploring Philosophy Texts"
+author: "Ruopu Fan"
+date: "9/29/2021"
+output: html_document
+---
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(tm)
+library(wordcloud)
+library(RColorBrewer)
+library(tidytext)
+library(ggplot2)
+```
+
+
+# Introduction
+
+In this project, I'm going to explore the texts by main philosophers in the modern era. Through this analysis, we can observe the way that the thinkers organized their thoughts in texts and the disparities among different schools and authors.
+
+# An overall glimpse of the texts
+
+```{r warning=FALSE}
+# Text Processing
+data = read.csv("../data/philosophy_data.csv", header = TRUE)
+words = Corpus(VectorSource(data$tokenized_txt))
+tdm.overall = words %>%
+  tm_map(removeNumbers) %>%
+  tm_map(removePunctuation) %>%
+  tm_map(stripWhitespace) %>%
+  tm_map(removeWords, stopwords("english")) %>%
+  TermDocumentMatrix() %>%
+  tidy() %>%
+  count(term, sort = TRUE)
+# Word Cloud 
+set.seed(2021)
+wordcloud(
+  tdm.overall$term,
+  tdm.overall$n,
+  max.words = 200,
+  min.freq = 1,
+  random.order = FALSE,
+  rot.per = 0.35,
+  use.r.layout = T,
+  random.color = FALSE,
+  colors = brewer.pal(9, "Greys")
+)
+```
+
+From the above word cloud, the most frequent words are `one`, `can`, `will` etc. The Oxford Dictionary defines philosophy as a discipline that explores "the nature of knowledge, reality, and existence", and it is consistent that we observe those keywords in the word cloud. An interesting finding is that philosophers also used `god` frequently in their works. I thought modern thinkers tend to discuss on only human experience but not religions, but it looks like that many of them did talk about gods.
+
+# A closer look at Rationalism, Empiricism & German Idealism
+
+Here, we are going to explore further and see if the three schools share similar wording habits.
+
+## Empiricism
+
+```{r warning=FALSE}
+data.em = data %>%
+  filter(school == "empiricism") %>%
+  group_by(author) %>%
+  ungroup()
+
+words.em = Corpus(VectorSource(data.em$tokenized_txt))
+tdm.em = words.em %>%
+  tm_map(removeNumbers) %>%
+  tm_map(removePunctuation) %>%
+  tm_map(stripWhitespace) %>%
+  tm_map(removeWords, stopwords("english")) %>%
+  TermDocumentMatrix() %>%
+  tidy() %>%
+  count(term, sort = TRUE)
+
+# Word Cloud 
+set.seed(2021)
+wordcloud(
+  tdm.em$term,
+  tdm.em$n,
+  max.words = 200,
+  min.freq = 1,
+  random.order = FALSE,
+  rot.per = 0.35,
+  use.r.layout = T,
+  random.color = FALSE,
+  colors = brewer.pal(9, "Reds")
+)
+```
+
+The word cloud for empiricists shows that they mainly use the word of `idea` and `mind`. According to Wikipedia, Empiricism states that human knowledge or `idea` comes from sensory experience only. That's why thinkers in this school mention the word `idea` so frequently.
+
+## Rationalism
+
+```{r warning=FALSE}
+data.ra = data %>%
+  filter(school == "rationalism") %>%
+  group_by(author) %>%
+  ungroup()
+
+words.ra = Corpus(VectorSource(data.ra$tokenized_txt))
+tdm.ra = words.ra %>%
+  tm_map(removeNumbers) %>%
+  tm_map(removePunctuation) %>%
+  tm_map(stripWhitespace) %>%
+  tm_map(removeWords, stopwords("english")) %>%
+  TermDocumentMatrix() %>%
+  tidy() %>%
+  count(term, sort = TRUE)
+
+# Word Cloud for German Idealism
+set.seed(2021)
+wordcloud(
+  tdm.ra$term,
+  tdm.ra$n,
+  max.words = 200,
+  min.freq = 1,
+  random.order = FALSE,
+  rot.per = 0.35,
+  use.r.layout = T,
+  random.color = FALSE,
+  colors = brewer.pal(9, "Blues")
+)
+```
+
+`God` alongside `soul`, `imagination` & `senses` stand out in this word cloud. We can tell that rationalists talks more about religions. Most of their arguments, however, should be the reasoning to oppose religion because Rationalism believes that one's "opinions and actions should be based on reason and knowledge rather than on religious belief or emotional response". It seems like that a great deal of Rationalism texts is devoted to refuting the god.
+
+## German Idealism
+
+```{r warning=FALSE}
+data.gi = data %>%
+  filter(school == "german_idealism") %>%
+  group_by(author) %>%
+  ungroup()
+
+words.gi = Corpus(VectorSource(data.gi$tokenized_txt))
+tdm.gi = words.gi %>%
+  tm_map(removeNumbers) %>%
+  tm_map(removePunctuation) %>%
+  tm_map(stripWhitespace) %>%
+  tm_map(removeWords, stopwords("english")) %>%
+  TermDocumentMatrix() %>%
+  tidy() %>%
+  count(term, sort = TRUE)
+
+# Word Cloud for German Idealism
+set.seed(2021)
+wordcloud(
+  tdm.gi$term,
+  tdm.gi$n,
+  max.words = 200,
+  min.freq = 1,
+  random.order = FALSE,
+  rot.per = 0.35,
+  use.r.layout = T,
+  random.color = FALSE,
+  colors = brewer.pal(9, "Purples")
+)
+```
+
+In German Idealism, we perceive properties of an object by its appearance but cannot know the "thing-in-itself". The word cloud also indicates that it is the `cognition`, `consciousness` or `intuition` that helps us build `determination` through what we can see, yet we are not able to know the reality directly. The `concept` in one's mind may or may not be true.
+
+# The main thinker: Immanuel Kant
+
+Immanuel Kant, considered as one of the most influential figures in modern Western philosophy, was also the central figure in German Idealism. He synthesized both Rationalism and Empiricism in his thoughts and attempted to explain the relationship between reason and human experience that traditional philosophy failed to prove. Since Kant combined ideas from the other two schools, we could expect that he used similar words as rationalists and empiricists did. But what if we take a closer look at his critique works and compare the weighted document-wise word frequencies?
+
+```{r message=FALSE}
+# TF-IDF for Kant's books
+books.kant = data %>%
+  filter(author == "Kant") %>%
+  unnest_tokens(word, sentence_lowered) %>%
+  anti_join(stop_words) %>%
+  count(title, word, sort = TRUE) %>%
+  bind_tf_idf(word, title, n) %>%
+  arrange(desc(tf_idf)) %>%
+  group_by(title) %>%
+  slice_max(tf_idf, n = 20) %>%
+  ungroup()
+
+ggplot(books.kant, aes(tf_idf, fct_reorder(word, tf_idf), fill = title)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~title, ncol = 2, scales = "free") +
+  ggtitle("TF-IDF for Kant's Books") +
+  xlab("tf-idf") +
+  ylab("")
+```
+
+The IDF(inverse document frequency) rate weighs down the most commonly used words and weighs up those that are less frequent, while the TF(term frequency) simply indicates the count of a word. In the above graphs, we multiply TF&IDF together to measure how important a word is to a document. As we can see, the core term to all three books is `judgment`. In the Critique of Judgment (1790), Kant mentions `aesthetically` often, this might result from his interests in explaining aesthetics through philosophy. `Christian` appears to be important in the Critique of Practical Reason (1788), so we can expect religious discussion in this book. Again, because Kant argues for the way people perceive things, `perception` is shown to be an essential word in his early work of the Critique of Pure Reason (1781).
+
+
+
+
+
+
+
+
+
+
+
